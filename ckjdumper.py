@@ -32,8 +32,19 @@ for exam in exams['exams']:
     with open(os.path.join(exam['title'], 'exam_raw.json'), 'w', encoding='utf-8') as exam_info:
         exam_info.write(json.dumps(exam, indent=2, ensure_ascii=False))
 # TODO download problems
+res_problems = sess.get('https://ckj.imslab.org/problems')
+problems = json.loads(res_problems.text)
 # TODO foreach problems
+for problem in problems['problems']:
     # TODO download problem
+    res_problem_info = sess.get(f'https://ckj.imslab.org/problems/{problem["id"]}')
+    problem_info = json.loads(res_problem_info.text)
+    del problem_info['totalRequest']
+    del problem_info['acRequest']
+    ch_dirname = problem['chapter']['index'] if problem['chapter'] else 'misc'
     # TODO write problem info
+    os.makedirs(os.path.join(ch_dirname, problem['title']), exist_ok=True)
+    with open(os.path.join(ch_dirname, problem['title'], 'problem_raw.json'), 'w', encoding='utf-8') as prob_info:
+        prob_info.write(json.dumps(problem_info, indent=4, ensure_ascii=False))
     # TODO download submission
     # TODO write submission
