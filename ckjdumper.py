@@ -17,7 +17,7 @@ for chapter in homework['homework']:
     # TODO write chapter info
     os.makedirs(chapter['index'], exist_ok=True)
     with open(os.path.join(chapter['index'], 'chapter_raw.json'), 'w', encoding='utf-8') as ch_info:
-        ch_info.write(json.dumps(chapter, indent=2, ensure_ascii=False))
+        ch_info.write(json.dumps(chapter, indent=4, ensure_ascii=False))
 # TODO download exams
 res_exams = sess.get('https://ckj.imslab.org/exams')
 exams = json.loads(res_exams.text)
@@ -30,7 +30,7 @@ for exam in exams['exams']:
     # TODO write exams info
     os.makedirs(exam['title'], exist_ok=True)
     with open(os.path.join(exam['title'], 'exam_raw.json'), 'w', encoding='utf-8') as exam_info:
-        exam_info.write(json.dumps(exam, indent=2, ensure_ascii=False))
+        exam_info.write(json.dumps(exam, indent=4, ensure_ascii=False))
 # TODO download problems
 res_problems = sess.get('https://ckj.imslab.org/problems')
 problems = json.loads(res_problems.text)
