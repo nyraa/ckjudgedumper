@@ -4,7 +4,7 @@ import os
 import sys
 
 sess = requests.Session()
-sess.cookies.setdefault('connect.sid', sys.argv[0])
+sess.cookies.setdefault('connect.sid', sys.argv[1])
 
 os.makedirs('dump', exist_ok=True)
 os.chdir('dump')
