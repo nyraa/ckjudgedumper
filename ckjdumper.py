@@ -28,8 +28,8 @@ with open('../exam.json', encoding='utf-8') as exam_f:
 # TODO foreach exams
 for exam in exams['exams']:
     # TODO write exams info
-    os.makedirs(exam['title'], exist_ok=True)
-    with open(os.path.join(exam['title'], 'exam_raw.json'), 'w', encoding='utf-8') as exam_info:
+    os.makedirs(exam['index'], exist_ok=True)
+    with open(os.path.join(exam['index'], 'exam_raw.json'), 'w', encoding='utf-8') as exam_info:
         exam_info.write(json.dumps(exam, indent=4, ensure_ascii=False))
 # TODO download problems
 res_problems = sess.get('https://ckj.imslab.org/problems')
