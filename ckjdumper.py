@@ -91,10 +91,20 @@ for problem in problems['problems']:
 {problem_info['inputFormat']}
 ### Output
 {problem_info['outputFormat']}
+""")
+
+        if problem_info['loaderCode']:
+            loader_code = problem_info['loaderCode'].replace('\r', '')
+            readme_md.write(f"""
 ### Loader Code
+<details>
+<summary>Loader Code</summary>
+
 ```c
-{problem_info['loaderCode']}
+{loader_code}
 ```
+</details>
+
 """)
         for i, sample in enumerate(problem_info['samples']):
             readme_md.write(f"""
@@ -116,7 +126,10 @@ Your program can only use memory less than {problem_info['memLimit']} KB.
         if problem_info['hint']:
             readme_md.write(f"""
 ### Hint
+<details>
+<summary>Hint</summary>
 {problem_info['hint']}
+</details>
 """)
 
     # TODO download submission
