@@ -103,7 +103,6 @@ for problem in problems['problems']:
         lf = '\n'
         readme_md.write(f"""\
 ## {problem_info["title"]}
-### Details
 <details>
 <summary>Details</summary>
 
