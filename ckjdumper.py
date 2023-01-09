@@ -56,20 +56,24 @@ for problem in problems['problems']:
 
     # TODO write problem info
     os.makedirs(os.path.join(ch_dirname, problem['title']), exist_ok=True)
-    with open(os.path.join(ch_dirname, problem['title'], 'problem_raw.json'), 'w', encoding='utf-8') as prob_info:
+    os.chdir(os.path.join(ch_dirname, problem['title']))
+    with open('problem_raw.json', 'w', encoding='utf-8') as prob_info:
         prob_info.write(json.dumps(problem_info, indent=4, ensure_ascii=False))
 
 
     # TODO download submission
     res_submissions_info = sess.get(f'https://ckj.imslab.org/user/submission/{problem["id"]}')
     if res_submissions_info.status_code == 404:
+        os.chdir(os.path.join('..', '..'))
         continue
     submissions_info = json.loads(res_submissions_info.text)
     if not submissions_info['submissionInfo'][-1]['status'] == 'Accepted':
+        os.chdir(os.path.join('..', '..'))
         continue
     res_submission = sess.get(f'https://ckj.imslab.org/user/code/{submissions_info["submissionInfo"][-1]["submissionId"]}')
 
 
     # TODO write submission
-    with open(os.path.join(ch_dirname, problem['title'], 'submission.c'), 'w', encoding='utf-8') as submission_f:
+    with open('submission.c', 'w', encoding='utf-8') as submission_f:
         submission_f.write(res_submission.text)
+    os.chdir(os.path.join('..', '..'))
