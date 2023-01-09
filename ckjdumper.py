@@ -80,11 +80,44 @@ for problem in problems['problems']:
         prob_info.write(json.dumps(problem_info, indent=4, ensure_ascii=False))
     # MD
     with open('README.md', 'w', encoding='utf-8') as readme_md:
-        readme_md.write(f'# {problem_info["title"]}\n')
-        readme_md.write('### Tags\n')
-        readme_md.write('\n'.join(['* ' + x for x in problem_info['tags']]) + '\n')
-        readme_md.write('### Description\n')
-        readme_md.write(md(problem_info['description']))
+        lf = '\n'
+        readme_md.write(f"""\
+## {problem_info["title"]}
+### Tags
+{lf.join(['* ' + x for x in problem_info['tags']])}
+### Description
+{md(problem_info['description'])}
+### Input
+{problem_info['inputFormat']}
+### Output
+{problem_info['outputFormat']}
+### Loader Code
+```c
+{problem_info['loaderCode']}
+```
+""")
+        for i, sample in enumerate(problem_info['samples']):
+            readme_md.write(f"""
+### Example {i + 1}
+#### Input
+```
+{sample['inputData']}
+```
+#### Output
+```
+{sample['outputData']}
+```
+""")
+        readme_md.write(f"""
+### Limits
+Your program needs to finish task in {problem_info['timeLimit']} seconds.  
+Your program can only use memory less than {problem_info['memLimit']} KB.  
+""")
+        if problem_info['hint']:
+            readme_md.write(f"""
+### Hint
+{problem_info['hint']}
+""")
 
     # TODO download submission
     res_submissions_info = sess.get(f'https://ckj.imslab.org/user/submission/{problem["id"]}')
