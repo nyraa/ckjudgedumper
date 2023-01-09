@@ -33,7 +33,7 @@ os.chdir('dump')
 # type (hw, exam, misc)
 #   chapter index
 #   (chapter title, [problems title])
-index_dicts = ({}, {}, {'misc': ('misc', [])})
+index_dicts = ({}, {}, {'misc': ('Problem without chapter', [])})
 index_titles = ('Homeworks', 'Exams', 'Misc')
 
 # TODO download chapters
@@ -180,5 +180,10 @@ with open('README.md', 'w', encoding='utf-8') as index:
         index.write(f'- {index_titles[i]}\n')
         for chapter in index_dicts[i]:
             index.write(f'  - [{chapter} - {index_dicts[i][chapter][0]}](/{chapter})\n')
+            fo = open(os.path.join(chapter, 'README.md'), 'w', encoding='utf-8')
+            fo.write(f'# {chapter}\n')
             for problem_title in index_dicts[i][chapter][1]:
                 index.write(f'    - [{problem_title}](/{urllib.parse.quote(f"{chapter}/{problem_title}")})\n')
+                with open(os.path.join(chapter, problem_title, 'README.md'), encoding='utf-8') as fi:
+                    fo.writelines(fi.readlines())
+            fo.close()
