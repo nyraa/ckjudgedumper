@@ -29,9 +29,12 @@ def md(html, **options):
 os.makedirs('dump', exist_ok=True)
 os.chdir('dump')
 
-homeworks_index = {}
-exams_index = {}
-misc_index = []
+# homework, exam, misc
+# type (hw, exam, misc)
+#   chapter index
+#   (chapter title, [problems title])
+index_dicts = ({}, {}, {'misc': ('misc', [])})
+index_titles = ('Homeworks', 'Exams', 'Misc')
 
 # TODO download chapters
 res_homework = sess.get('https://ckj.imslab.org/homework')
@@ -41,7 +44,7 @@ homework = json.loads(res_homework.text)
 # TODO foreach chapters
 for chapter in homework['homework']:
     # TODO register index
-    homeworks_index[chapter['index']] = (chapter['title'], [])
+    index_dicts[0][chapter['index']] = (chapter['title'], [])
 
     # TODO write chapter info
     os.makedirs(chapter['index'], exist_ok=True)
@@ -61,7 +64,7 @@ with open('../exam.json', encoding='utf-8') as exam_f:
 # TODO foreach exams
 for exam in exams['exams']:
     # TODO register index
-    exams_index[exam['index']] = (exam['title'], [])
+    index_dicts[1][exam['index']] = (exam['title'], [])
 
     # TODO write exams info
     os.makedirs(exam['index'], exist_ok=True)
@@ -78,12 +81,10 @@ problems = json.loads(res_problems.text)
 for problem in problems['problems']:
     # TODO register index
     chapter_index = problem['chapter']['index'] if problem['chapter'] else 'misc'
-    if chapter_index in homeworks_index:
-        homeworks_index[chapter_index][1].append(problem['title'])
-    elif chapter_index in exams_index:
-        exams_index[chapter_index][1].append(problem['title'])
-    else:
-        misc_index.append(problem['title'])
+    for i in range(3):
+        if chapter_index in index_dicts[i]:
+            index_dicts[i][chapter_index][1].append(problem['title'])
+            break
 
     # TODO download problem
     res_problem_info = sess.get(f'https://ckj.imslab.org/problems/{problem["id"]}')
@@ -177,8 +178,9 @@ Your program can only use memory less than {problem_info['memLimit']} KB.
 
 # TODO write global index
 with open('README.md', 'w', encoding='utf-8') as index:
-    index.write('- Homeworks\n')
-    for hw_chapter in homeworks_index:
-        index.write(f'  - [{hw_chapter} - {homeworks_index[hw_chapter][0]}](/{hw_chapter})\n')
-        for problem_title in homeworks_index[hw_chapter][1]:
-            index.write(f'    - [{problem_title}](/{urllib.parse.quote(f"{hw_chapter}/{problem_title}")})\n')
+    for i in range(3):
+        index.write(f'- {index_titles[i]}\n')
+        for chapter in index_dicts[i]:
+            index.write(f'  - [{chapter} - {index_dicts[i][chapter][0]}](/{chapter})\n')
+            for problem_title in index_dicts[i][chapter][1]:
+                index.write(f'    - [{problem_title}](/{urllib.parse.quote(f"{chapter}/{problem_title}")})\n')
