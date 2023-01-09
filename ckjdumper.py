@@ -2,7 +2,6 @@ import requests
 import json
 import os
 import sys
-import markdownify
 from markdownify import MarkdownConverter
 import base64
 import hashlib
