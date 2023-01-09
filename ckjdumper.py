@@ -5,6 +5,7 @@ import sys
 import markdownify
 from markdownify import MarkdownConverter
 import base64
+import hashlib
 
 sess = requests.Session()
 sess.cookies.setdefault('connect.sid', sys.argv[1])
@@ -15,7 +16,7 @@ class ImageBlockConverter(MarkdownConverter):
     """
     def convert_img(self, el, text, convert_as_inline):
         src = el.attrs.get('src', None) or ''
-        alt = el.attrs.get('alt', None) or str(hash(src))
+        alt = el.attrs.get('alt', None) or hashlib.md5(src.encode('utf-8')).hexdigest()
         if src.startswith('data:'):
             img_data = src.split(',')[1]
             os.makedirs('img', exist_ok=True)
