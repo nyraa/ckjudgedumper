@@ -5,6 +5,7 @@ import sys
 from markdownify import MarkdownConverter
 import base64
 import hashlib
+import urllib.parse
 
 sess = requests.Session()
 sess.cookies.setdefault('connect.sid', sys.argv[1])
@@ -28,6 +29,10 @@ def md(html, **options):
 os.makedirs('dump', exist_ok=True)
 os.chdir('dump')
 
+homeworks_index = {}
+exams_index = {}
+misc_index = []
+
 # TODO download chapters
 res_homework = sess.get('https://ckj.imslab.org/homework')
 homework = json.loads(res_homework.text)
@@ -35,6 +40,9 @@ homework = json.loads(res_homework.text)
 
 # TODO foreach chapters
 for chapter in homework['homework']:
+    # TODO register index
+    homeworks_index[chapter['index']] = (chapter['title'], [])
+
     # TODO write chapter info
     os.makedirs(chapter['index'], exist_ok=True)
     with open(os.path.join(chapter['index'], 'chapter_raw.json'), 'w', encoding='utf-8') as ch_info:
@@ -52,6 +60,9 @@ with open('../exam.json', encoding='utf-8') as exam_f:
 
 # TODO foreach exams
 for exam in exams['exams']:
+    # TODO register index
+    exams_index[exam['index']] = (exam['title'], [])
+
     # TODO write exams info
     os.makedirs(exam['index'], exist_ok=True)
     with open(os.path.join(exam['index'], 'exam_raw.json'), 'w', encoding='utf-8') as exam_info:
@@ -65,17 +76,25 @@ problems = json.loads(res_problems.text)
 
 # TODO foreach problems
 for problem in problems['problems']:
+    # TODO register index
+    chapter_index = problem['chapter']['index'] if problem['chapter'] else 'misc'
+    if chapter_index in homeworks_index:
+        homeworks_index[chapter_index][1].append(problem['title'])
+    elif chapter_index in exams_index:
+        exams_index[chapter_index][1].append(problem['title'])
+    else:
+        misc_index.append(problem['title'])
+
     # TODO download problem
     res_problem_info = sess.get(f'https://ckj.imslab.org/problems/{problem["id"]}')
     problem_info = json.loads(res_problem_info.text)
     del problem_info['totalRequest']
     del problem_info['acRequest']
-    ch_dirname = problem['chapter']['index'] if problem['chapter'] else 'misc'
 
 
     # TODO write problem info
-    os.makedirs(os.path.join(ch_dirname, problem['title']), exist_ok=True)
-    os.chdir(os.path.join(ch_dirname, problem['title']))
+    os.makedirs(os.path.join(chapter_index, problem['title']), exist_ok=True)
+    os.chdir(os.path.join(chapter_index, problem['title']))
     with open('problem_raw.json', 'w', encoding='utf-8') as prob_info:
         prob_info.write(json.dumps(problem_info, indent=4, ensure_ascii=False))
     # MD
@@ -148,3 +167,11 @@ Your program can only use memory less than {problem_info['memLimit']} KB.
     with open('submission.c', 'w', encoding='utf-8') as submission_f:
         submission_f.write(res_submission.text)
     os.chdir(os.path.join('..', '..'))
+
+# TODO write global index
+with open('README.md', 'w', encoding='utf-8') as index:
+    index.write('- Homeworks\n')
+    for hw_chapter in homeworks_index:
+        index.write(f'  - [{hw_chapter} - {homeworks_index[hw_chapter][0]}](/{hw_chapter})\n')
+        for problem_title in homeworks_index[hw_chapter][1]:
+            index.write(f'    - [{problem_title}](/{urllib.parse.quote(f"{hw_chapter}/{problem_title}")})\n')
