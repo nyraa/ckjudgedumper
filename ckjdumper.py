@@ -2,10 +2,29 @@ import requests
 import json
 import os
 import sys
+import markdownify
+from markdownify import MarkdownConverter
+import base64
 
 sess = requests.Session()
 sess.cookies.setdefault('connect.sid', sys.argv[1])
 
+class ImageBlockConverter(MarkdownConverter):
+    """
+    Save base64 image to local
+    """
+    def convert_img(self, el, text, convert_as_inline):
+        src = el.attrs.get('src', None) or ''
+        alt = el.attrs.get('alt', None) or str(hash(src))
+        if src.startswith('data:'):
+            img_data = src.split(',')[1]
+            os.makedirs('img', exist_ok=True)
+            with open(os.path.join('img', alt), 'wb') as img:
+                img.write(base64.decodebytes(bytes(img_data, encoding='utf-8')))
+            el.attrs['src'] = f'img/{alt}'
+        return super().convert_img(el, text, convert_as_inline) + '\n\n'
+def md(html, **options):
+    return ImageBlockConverter(**options).convert(html)
 os.makedirs('dump', exist_ok=True)
 os.chdir('dump')
 
@@ -59,7 +78,13 @@ for problem in problems['problems']:
     os.chdir(os.path.join(ch_dirname, problem['title']))
     with open('problem_raw.json', 'w', encoding='utf-8') as prob_info:
         prob_info.write(json.dumps(problem_info, indent=4, ensure_ascii=False))
-
+    # MD
+    with open('README.md', 'w', encoding='utf-8') as readme_md:
+        readme_md.write(f'# {problem_info["title"]}\n')
+        readme_md.write('### Tags\n')
+        readme_md.write('\n'.join(['* ' + x for x in problem_info['tags']]) + '\n')
+        readme_md.write('### Description\n')
+        readme_md.write(md(problem_info['description']))
 
     # TODO download submission
     res_submissions_info = sess.get(f'https://ckj.imslab.org/user/submission/{problem["id"]}')
