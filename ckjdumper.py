@@ -100,15 +100,14 @@ for problem in problems['problems']:
         prob_info.write(json.dumps(problem_info, indent=4, ensure_ascii=False))
     # MD
     with open('README.md', 'w', encoding='utf-8') as readme_md:
-        lf = '\n'
         readme_md.write(f"""\
 ## {problem_info["title"]}
 <details>
 <summary>Details</summary>
 
-Level: [{problem['level']}](https://ckj.imslab.org/#/problems/{problem['id']})
-### Tags
-{lf.join(['* ' + x for x in problem_info['tags']])}
+Level: {problem['level']}  
+Tags: {', '.join(problem_info['tags'])}  
+Problem ID: [{problem['id']}](https://ckj.imslab.org/#/problems/{problem['id']})  
 </details>
 
 ### Description
