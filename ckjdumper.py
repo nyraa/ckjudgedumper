@@ -102,8 +102,15 @@ for problem in problems['problems']:
         lf = '\n'
         readme_md.write(f"""\
 ## {problem_info["title"]}
+### Details
+<details>
+<summary>Details</summary>
+
+Level: [{problem['level']}](https://ckj.imslab.org/#/problems/{problem['id']})
 ### Tags
 {lf.join(['* ' + x for x in problem_info['tags']])}
+</details>
+
 ### Description
 {md(problem_info['description'])}
 ### Input
@@ -117,7 +124,6 @@ for problem in problems['problems']:
             readme_md.write(f"""
 ### Loader Code
 <details>
-Your code will be judge using this program:  
 <summary>Loader Code</summary>
 
 ```c
