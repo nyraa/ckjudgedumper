@@ -107,7 +107,7 @@ for problem in problems['problems']:
 ### Description
 {md(problem_info['description'])}
 ### Input
-{problem_info['inputFormat']}
+{problem_info['inputFormat'] if problem_info['inputFormat'] else 'No input'}
 ### Output
 {problem_info['outputFormat']}
 """)
@@ -117,6 +117,7 @@ for problem in problems['problems']:
             readme_md.write(f"""
 ### Loader Code
 <details>
+Your code will be judge using this program:  
 <summary>Loader Code</summary>
 
 ```c
