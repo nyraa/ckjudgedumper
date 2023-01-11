@@ -171,7 +171,7 @@ Your program can only use memory less than {problem_info['memLimit']} KB.
 
     # TODO write submission
     with open('submission.c', 'w', encoding='utf-8') as submission_f:
-        submission_f.write(res_submission.text)
+        submission_f.write(res_submission.text.replace('\t', '    '))
     os.chdir(os.path.join('..', '..'))
 
 # TODO write global index
